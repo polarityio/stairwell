@@ -1,4 +1,5 @@
 {
+  "polarityIntegrationUuid": "63cb0300-3c60-11ee-aa25-ddb2fb427b8e",
   "name": "Stairwell Inception",
   "acronym": "STW-I",
   "description": "A file analysis service that ingests and analyzes executable files to gain insight as to if environments have been impacted by a threat",
