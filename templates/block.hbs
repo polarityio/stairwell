@@ -1,0 +1,76 @@
+{{#if details.type}}
+      <a class="p-link" href="app.stairwell.com/search?search-query={{details.attributes.md5}}">
+        View in Stairwell
+        {{fa-icon "external-link-square" fixedWidth=true class="external-icon"}}
+      </a>
+    {{/if}}
+  
+  <h1 class="p-title">
+    {{fa-icon "eye" fixedWidth=true}} Summary
+  </h1>
+    
+    {{#if details.data.attributes.mal_eval_result.probability_bucket}}
+    <div>
+        <span class="p-key">Malicious Liklihood: </span>
+        <span class="p-value">{{details.data.attributes.mal_eval_result.probability_bucket}}</span>
+    </div>
+  {{/if}}
+
+   {{#if details.data.attributes.size}}
+    <div>
+        <span class="p-key">Size (bytes): </span>
+        <span class="p-value">{{details.data.attributes.size}}</span>
+    </div>
+  {{/if}}
+
+
+  {{#if details.data.attributes.type_description}}
+    <div>
+      <span class="p-key">Type: </span>
+      <span class="p-value">{{details.data.attributes.type_description}}</span>
+    </div>
+  {{/if}}
+
+  {{#if details.data.attributes.meaningful_name}}
+    <div>
+      <span class="p-key">Meaningful Name: </span>
+      <span class="p-value">{{details.data.attributes.meaningful_name}}</span>
+    </div>
+  {{/if}}
+
+  {{#if details.data.attributes.creation_date}}
+    <div>
+      <span class="p-key">Creation Date: </span>
+      <span class="p-value">{{details.data.attributes.creation_date}}</span>
+    </div>
+  {{/if}}
+
+
+  {{#if details.data.attributes.opinions}}
+     {{#each details.data.attributes.opinions}}
+            <span class="p-key">Opinion: </span>
+            <span classe="p-value">{{this}}</span>>
+      {{/each}}
+  {{/if}}
+
+
+  {{#if details.data.attributes.occurences}}
+     {{#each details.data.attributes.occurences}}
+            <span class="p-key">Occurences: </span>
+            <span classe="p-value">{{this}}</span>>
+      {{/each}}
+  {{/if}}
+
+  {{#if details.data.attributes.mal_eval_result.label}}
+     {{#each data.attributes.mal_eval_result.labels}}
+            <span class="p-key">Label: </span>
+            <span classe="p-value">{{this}}</span>>
+      {{/each}}
+  {{/if}}
+
+   {{#if details.data.attributes.crowdsourced_yara_results.rule_name}}
+     {{#each details.data.attributes.crowdsourced_yara_results.rule_name}}
+            <span class="p-key">Available Yara Rule(s): </span>
+            <span classe="p-value">{{this}}</span>>
+      {{/each}}
+  {{/if}}
