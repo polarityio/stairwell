@@ -1,76 +1,95 @@
-{{#if details.type}}
-      <a class="p-link" href="app.stairwell.com/search?search-query={{details.attributes.md5}}">
-        View in Stairwell
-        {{fa-icon "external-link-square" fixedWidth=true class="external-icon"}}
-      </a>
-    {{/if}}
-  
-  <h1 class="p-title">
-    {{fa-icon "eye" fixedWidth=true}} Summary
-  </h1>
-    
-    {{#if details.data.attributes.mal_eval_result.probability_bucket}}
-    <div>
-        <span class="p-key">Malicious Liklihood: </span>
-        <span class="p-value">{{details.data.attributes.mal_eval_result.probability_bucket}}</span>
-    </div>
-  {{/if}}
+<a
+  class="p-link"
+  href="https://app.stairwell.com/search?search-query={{block.entity.value}}"
+>
+  View in Stairwell
+  {{fa-icon "external-link-square" fixedWidth=true class="external-icon"}}
+</a>
 
-   {{#if details.data.attributes.size}}
-    <div>
-        <span class="p-key">Size (bytes): </span>
-        <span class="p-value">{{details.data.attributes.size}}</span>
-    </div>
-  {{/if}}
+<h1 class="p-title">
+  {{fa-icon "eye" fixedWidth=true}}
+  Summary
+</h1>
 
+{{#if details.data.attributes.mal_eval_result.probability_bucket}}
+  <div>
+    <span class="p-key">Malicious Likelihood: </span>
+    <span
+      class="p-value {{if details.data.isMalicious 'malicious'}}"
+    >{{details.data.attributes.mal_eval_result.probability_bucket}}</span>
+  </div>
+{{/if}}
 
-  {{#if details.data.attributes.type_description}}
-    <div>
-      <span class="p-key">Type: </span>
-      <span class="p-value">{{details.data.attributes.type_description}}</span>
-    </div>
-  {{/if}}
+{{#if details.data.attributes.size}}
+  <div>
+    <span class="p-key">Size: </span>
+    <span class="p-value">{{details.data.attributes.size}}</span>
+  </div>
+{{/if}}
 
-  {{#if details.data.attributes.meaningful_name}}
-    <div>
-      <span class="p-key">Meaningful Name: </span>
-      <span class="p-value">{{details.data.attributes.meaningful_name}}</span>
-    </div>
-  {{/if}}
+{{#if details.data.attributes.type_description}}
+  <div>
+    <span class="p-key">Type: </span>
+    <span class="p-value">{{details.data.attributes.type_description}}</span>
+  </div>
+{{/if}}
 
-  {{#if details.data.attributes.creation_date}}
-    <div>
-      <span class="p-key">Creation Date: </span>
-      <span class="p-value">{{details.data.attributes.creation_date}}</span>
-    </div>
-  {{/if}}
+{{#if details.data.attributes.meaningful_name}}
+  <div>
+    <span class="p-key">Meaningful Name: </span>
+    <span class="p-value">{{details.data.attributes.meaningful_name}}</span>
+  </div>
+{{/if}}
 
+{{#if details.data.attributes.creation_date}}
+  <div>
+    <span class="p-key">Creation Date: </span>
+    <span class="p-value">{{moment-format
+        details.data.attributes.creation_date
+        "MM/DD/YYYY HH:mm:ss z"
+        timeZone=timezone
+      }}</span>
+  </div>
+{{/if}}
 
-  {{#if details.data.attributes.opinions}}
-     {{#each details.data.attributes.opinions}}
-            <span class="p-key">Opinion: </span>
-            <span classe="p-value">{{this}}</span>>
+{{#if details.data.attributes.opinions.length}}
+  <div>
+    <span class="p-key">Opinions: </span>
+    <span class="p-value">{{join ", " details.data.attributes.opinions}}</span>
+  </div>
+{{/if}}
+
+{{#if details.data.attributes.occurrences.length}}
+  <div>
+    <span class="p-key">Occurrences: </span>
+    <span class="p-value">{{join ", " details.data.attributes.occurrences}}</span>
+  </div>
+{{/if}}
+
+{{#if details.data.attributes.mal_eval_result.labels.length}}
+  <div>
+    <span class="p-key">Labels: </span>
+    <span class="p-value">{{join
+        ", "
+        details.data.attributes.mal_eval_result.labels
+      }}</span>
+  </div>
+{{/if}}
+
+{{#if details.data.attributes.crowdsourced_yara_results.length}}
+  <div>
+    <span class="p-key">Available Yara Rules:</span>
+    <span class="p-value">
+      {{#each
+        details.data.attributes.crowdsourced_yara_results
+        as |crowdsourced_yara_result index|
+      }}
+        {{crowdsourced_yara_result.rule_name}}{{#if
+          (not
+            (eq (sub details.data.attributes.crowdsourced_yara_results.length 1) index)
+          )
+        }}, {{/if}}
       {{/each}}
-  {{/if}}
-
-
-  {{#if details.data.attributes.occurences}}
-     {{#each details.data.attributes.occurences}}
-            <span class="p-key">Occurences: </span>
-            <span classe="p-value">{{this}}</span>>
-      {{/each}}
-  {{/if}}
-
-  {{#if details.data.attributes.mal_eval_result.label}}
-     {{#each data.attributes.mal_eval_result.labels}}
-            <span class="p-key">Label: </span>
-            <span classe="p-value">{{this}}</span>>
-      {{/each}}
-  {{/if}}
-
-   {{#if details.data.attributes.crowdsourced_yara_results.rule_name}}
-     {{#each details.data.attributes.crowdsourced_yara_results.rule_name}}
-            <span class="p-key">Available Yara Rule(s): </span>
-            <span classe="p-value">{{this}}</span>>
-      {{/each}}
-  {{/if}}
+    </span>
+  </div>
+{{/if}}

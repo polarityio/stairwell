@@ -3,8 +3,7 @@ const request = require('postman-request');
 const config = require('./config/config');
 const async = require('async');
 const fs = require('fs');
-const { get } = require('lodash/fp');
-let _ = require('lodash');
+const { get, getOr, map } = require('lodash/fp');
 
 let Logger;
 let requestDefault;
@@ -16,10 +15,7 @@ let requestDefault;
  * @param cb
  */
 
-
 let previousDomainRegexAsString = '';
-
-
 
 function doLookup(entities, options, cb) {
   let lookupResults = [];
@@ -27,62 +23,58 @@ function doLookup(entities, options, cb) {
 
   Logger.trace({ entities: entities }, 'entities');
 
-
   entities.forEach((entity) => {
-      //do the lookup
-      let requestOptions = {
-        method: 'GET',
-        uri: `${options.url}/api/v3/files/` + entity.value,
-        headers: {
-          'X-Apikey': options.apiKey,
-        },
-        json: true
-      };
+    //do the lookup
+    let requestOptions = {
+      method: 'GET',
+      uri: `${options.url}/api/v3/files/` + entity.value,
+      headers: {
+        'X-Apikey': options.apiKey
+      },
+      json: true
+    };
 
-      Logger.debug({ uri: requestOptions }, 'Request URI');
+    Logger.debug({ uri: requestOptions }, 'Request URI');
 
-      tasks.push(function (done) {
-        requestDefault(requestOptions, function (error, res, body) {
-          if (error) {
-            done({
-              error: error,
-              entity: entity.value,
-              detail: 'Error in Request'
-            });
-            return;
-          }
+    tasks.push(function (done) {
+      requestDefault(requestOptions, function (error, res, body) {
+        if (error) {
+          done({
+            error: error,
+            entity: entity.value,
+            detail: 'Error in Request'
+          });
+          return;
+        }
 
-          let result = {};
+        let result = {};
 
-          if (res.statusCode === 200) {
-            result = {
-              entity: entity,
-              body: body,
-            
-            };
-          } else if (res.statusCode === 429) {
-            // reached rate limit
-            error = {
-              detail: 'Reached API Lookup Limit',
-              
-            };
-          } else {
-            // Non 200 status code
-            done({
-              error: error,
-              httpStatus: res.statusCode,
-              body: body,
-              detail: 'Unexpected Non 200 HTTP Status Code',
-              entity: entity.value,
-            
-            });
-            return;
-          }
-          Logger.trace({ result: result }, 'checking on the results');
+        if (res.statusCode === 200) {
+          result = {
+            entity: entity,
+            body: body
+          };
+        } else if (res.statusCode === 429) {
+          // reached rate limit
+          error = {
+            detail: 'Reached API Lookup Limit'
+          };
+        } else {
+          // Non 200 status code
+          done({
+            error: error,
+            httpStatus: res.statusCode,
+            body: body,
+            detail: 'Unexpected Non 200 HTTP Status Code',
+            entity: entity.value
+          });
+          return;
+        }
+        Logger.trace({ result: result }, 'checking on the results');
 
-          done(error, result);
-        });
+        done(error, result);
       });
+    });
   });
 
   async.parallelLimit(tasks, 10, (err, results) => {
@@ -98,13 +90,43 @@ function doLookup(entities, options, cb) {
           data: null
         });
       } else {
+        const data = get('body.data', result);
+        const attributes = get('attributes', data);
+        const rawSize = get('size', attributes);
+        const rawCreationDate = get('creation_date', attributes);
+        const occurrences = get('occurrences', attributes);
         lookupResults.push({
           entity: result.entity,
           data: {
             summary: getSummaryTags(result.body),
             details: {
-              ...result.body
-             
+              ...result.body,
+              data: {
+                ...data,
+                isMalicious: getOr(
+                  '',
+                  'mal_eval_result.probability_bucket',
+                  attributes
+                ).includes('HIGH'),
+                attributes: {
+                  ...attributes,
+                  ...(rawSize && {
+                    size:
+                      rawSize > 1000
+                        ? `${(rawSize / 1000).toFixed(2)} KB`
+                        : `${rawSize} bytes`
+                  }),
+                  ...(rawCreationDate && {
+                    creation_date: rawCreationDate * 1000
+                  }),
+                  ...(occurrences && {
+                    occurrences: map(
+                      (occurrence) => JSON.stringify(occurrence),
+                      occurrences
+                    )
+                  })
+                }
+              }
             }
           }
         });
@@ -120,13 +142,14 @@ function doLookup(entities, options, cb) {
 function getSummaryTags(result) {
   const tags = [];
 
-  if (result) {
-    tags.push(`Probability: ` + get('result.body.data.attributes.mal_eval_result.probability_bucket', result));
-  }
+  const probabilityBucket = get(
+    'data.attributes.mal_eval_result.probability_bucket',
+    result
+  );
+  if (probabilityBucket) tags.push(probabilityBucket);
 
   return tags;
 }
-
 
 function _isMiss(body) {
   if (body && Array.isArray(body) && body.length === 0) {
@@ -148,7 +171,10 @@ function startup(logger) {
     defaults.key = fs.readFileSync(config.request.key);
   }
 
-  if (typeof config.request.passphrase === 'string' && config.request.passphrase.length > 0) {
+  if (
+    typeof config.request.passphrase === 'string' &&
+    config.request.passphrase.length > 0
+  ) {
     defaults.passphrase = config.request.passphrase;
   }
 
@@ -167,7 +193,8 @@ function validateOptions(userOptions, cb) {
   let errors = [];
   if (
     typeof userOptions.apiKey.value !== 'string' ||
-    (typeof userOptions.apiKey.value === 'string' && userOptions.apiKey.value.length === 0)
+    (typeof userOptions.apiKey.value === 'string' &&
+      userOptions.apiKey.value.length === 0)
   ) {
     errors.push({
       key: 'apiKey',
