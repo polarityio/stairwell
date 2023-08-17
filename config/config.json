@@ -1,46 +1,35 @@
 {
-    "name": "Stairwell Inception",
-    "acronym": "STW-I",
-    "defaultColor": "light-gray",
-    "description": "A file analysis service that ingests and analyzes executable files to gain insight as to if environments have been impacted by a threat",
-    "entityTypes": ["hash"],
-    "block": {
-      "component": {
-        "file": "./components/block.js"
-      },
-      "template": {
-        "file": "./templates/block.hbs"
-      }
+  "polarityIntegrationUuid": "63cb0300-3c60-11ee-aa25-ddb2fb427b8e",
+  "name": "Stairwell Inception",
+  "acronym": "STW-I",
+  "description": "A file analysis service that ingests and analyzes executable files to gain insight as to if environments have been impacted by a threat",
+  "entityTypes": ["hash"],
+  "defaultColor": "light-pink",
+  "styles": ["./styles/styles.less"],
+  "block": {
+    "component": { "file": "./components/block.js" },
+    "template": { "file": "./templates/block.hbs" }
+  },
+  "request": { "cert": "", "key": "", "passphrase": "", "ca": "", "proxy": "" },
+  "logging": { "level": "info" },
+  "options": [
+    {
+      "key": "url",
+      "name": "Stairwell URL",
+      "description": "Base URL for Stairwell Inception Service",
+      "default": "https://reputation.app.stairwell.com",
+      "type": "text",
+      "userCanEdit": false,
+      "adminOnly": true
     },
-    "request": {
-      "cert": "",
-      "key": "",
-      "passphrase": "",
-      "ca": "",
-      "proxy": ""
-    },
-    "logging": {
-      "level": "trace"
-    },
-    "onDemandOnly": true,
-    "options": [
-      {
-            "key": "url",
-            "name": "Stairwell Inception URL",
-            "description": "Base URL for Stairwell Inception Service.",
-            "default": "https://reputation.app.stairwell.com",
-            "type": "text",
-            "userCanEdit": true,
-            "adminOnly": false
-      },
-      {
-        "key": "apiKey",
-        "name": "API Key",
-        "description": "Stairwell - Inception API Key",
-        "default": "",
-        "type": "password",
-        "userCanEdit": true,
-        "adminOnly": false
-      }
-    ]
-  }
+    {
+      "key": "apiKey",
+      "name": "API Key",
+      "description": "Stairwell - Inception API Key",
+      "default": "",
+      "type": "password",
+      "userCanEdit": true,
+      "adminOnly": false
+    }
+  ]
+}

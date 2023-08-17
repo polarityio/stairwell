@@ -26,6 +26,7 @@ module.exports = {
     'A file analysis service that ingests and analyzes executable files to gain insight as to if environments have been impacted by a threat',
   entityTypes: ['hash'],
   defaultColor: 'light-pink',
+  styles: ['./styles/styles.less'],
   /**
    * Provide custom component logic and template for rendering the integration details block.  If you do not
    * provide a custom template and/or component then the integration will display data as a table of key value
@@ -60,7 +61,7 @@ module.exports = {
     proxy: ''
   },
   logging: {
-    level: 'trace' //trace, debug, info, warn, error, fatal
+    level: 'info' //trace, debug, info, warn, error, fatal
   },
   /**
    * Options that are displayed to the user/admin in the Polarity integration user-interface.  Should be structured
