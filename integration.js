@@ -54,6 +54,11 @@ function doLookup(entities, options, cb) {
             entity: entity,
             body: body
           };
+        } else if (res.statusCode === 404) {
+          result = {
+            entity: entity,
+            body: null
+          };
         } else if (res.statusCode === 429) {
           // reached rate limit
           error = {
